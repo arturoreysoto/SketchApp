@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 100;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -21,10 +21,8 @@
 /* Begin PBXFrameworksBuildPhase section */
 		06B4E0D42F87A21A00F8174C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -58,14 +56,10 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				06B4E0D92F87A21A00F8174C /* SketchApp */,
 			);
 			name = SketchApp;
-			packageProductDependencies = (
-			);
 			productName = SketchApp;
 			productReference = 06B4E0D72F87A21A00F8174C /* SketchApp.app */;
 			productType = "com.apple.product-type.application";
@@ -94,7 +88,7 @@
 			);
 			mainGroup = 06B4E0CE2F87A21A00F8174C;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			preferredProjectObjectVersion = 100;
 			productRefGroup = 06B4E0D82F87A21A00F8174C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -107,25 +101,21 @@
 /* Begin PBXResourcesBuildPhase section */
 		06B4E0D52F87A21A00F8174C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		06B4E0D32F87A21A00F8174C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		06B4E0E02F87A21B00F8174C /* Debug */ = {
+		06B4E0E02F87A21B00F8174C /* Debug configuration for PBXProject "SketchApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -188,7 +178,7 @@
 			};
 			name = Debug;
 		};
-		06B4E0E12F87A21B00F8174C /* Release */ = {
+		06B4E0E12F87A21B00F8174C /* Release configuration for PBXProject "SketchApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -243,7 +233,7 @@
 			};
 			name = Release;
 		};
-		06B4E0E32F87A21B00F8174C /* Debug */ = {
+		06B4E0E32F87A21B00F8174C /* Debug configuration for PBXNativeTarget "SketchApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -251,15 +241,18 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 572RB6J44W;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SketchApp;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ars.SketchApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -273,7 +266,7 @@
 			};
 			name = Debug;
 		};
-		06B4E0E42F87A21B00F8174C /* Release */ = {
+		06B4E0E42F87A21B00F8174C /* Release configuration for PBXNativeTarget "SketchApp" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -281,15 +274,18 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 572RB6J44W;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = SketchApp;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.ars.SketchApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -309,19 +305,17 @@
 		06B4E0D22F87A21A00F8174C /* Build configuration list for PBXProject "SketchApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				06B4E0E02F87A21B00F8174C /* Debug */,
-				06B4E0E12F87A21B00F8174C /* Release */,
+				06B4E0E02F87A21B00F8174C /* Debug configuration for PBXProject "SketchApp" */,
+				06B4E0E12F87A21B00F8174C /* Release configuration for PBXProject "SketchApp" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		06B4E0E22F87A21B00F8174C /* Build configuration list for PBXNativeTarget "SketchApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				06B4E0E32F87A21B00F8174C /* Debug */,
-				06B4E0E42F87A21B00F8174C /* Release */,
+				06B4E0E32F87A21B00F8174C /* Debug configuration for PBXNativeTarget "SketchApp" */,
+				06B4E0E42F87A21B00F8174C /* Release configuration for PBXNativeTarget "SketchApp" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
