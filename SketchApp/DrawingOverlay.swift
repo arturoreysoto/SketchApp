@@ -23,16 +23,15 @@ class DrawingOverlayWindow: NSWindow {
     }
 }
 
-enum ShapeType {
-    case line
-    case rectangle
-}
-
 struct DrawnShape {
     var type: ShapeType
     var points: [CGPoint]
     var color: Color
     var width: CGFloat
+}
+
+func pointDistance(_ a: CGPoint, _ b: CGPoint) -> CGFloat {
+    sqrt(pow(b.x - a.x, 2) + pow(b.y - a.y, 2))
 }
 
 struct DrawingView: View {
@@ -50,7 +49,13 @@ struct DrawingView: View {
         .gesture(
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
-                    guard !ToolState.shared.isCursorMode else { return }
+                    guard !toolState.isCursorMode else { return }
+                    
+                    if toolState.currentTool == .eraser {
+                        eraseAt(point: value.location)
+                        return
+                    }
+                    
                     if currentShape.points.isEmpty {
                         currentShape = DrawnShape(type: toolState.currentTool, points: [], color: .black, width: 6)
                     }
@@ -61,12 +66,21 @@ struct DrawingView: View {
                     }
                 }
                 .onEnded { _ in
-                    guard !ToolState.shared.isCursorMode else { return }
+                    guard !toolState.isCursorMode else { return }
+                    guard toolState.currentTool != .eraser else { return }
                     guard !currentShape.points.isEmpty else { return }
                     shapes.append(currentShape)
                     currentShape = DrawnShape(type: toolState.currentTool, points: [], color: .black, width: 6)
                 }
         )
+    }
+
+    func eraseAt(point: CGPoint) {
+        shapes.removeAll { shape in
+            shape.points.contains { shapePoint in
+                pointDistance(shapePoint, point) < 20
+            }
+        }
     }
 
     func drawShape(context: GraphicsContext, shape: DrawnShape) {

@@ -6,3 +6,9 @@ class ToolState: ObservableObject {
     @Published var currentTool: ShapeType = .line
     @Published var isCursorMode: Bool = false
 }
+
+enum ShapeType {
+    case line
+    case rectangle
+    case eraser
+}

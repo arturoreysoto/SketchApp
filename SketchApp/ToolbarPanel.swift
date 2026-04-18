@@ -85,11 +85,15 @@ struct ToolButton: View {
     var body: some View {
         Button {
             selected = tool
-            ToolState.shared.currentTool = tool == .rectangle ? .rectangle : .line
-            if tool == .cursor {
+            ToolState.shared.currentTool = tool == .rectangle ? .rectangle : tool == .eraser ? .eraser : .line
+            if tool == .cursor || tool == .lasso || tool == .ruler {
                 ToolState.shared.isCursorMode = true
                 appDelegate.overlayWindow?.ignoresMouseEvents = true
-            } else if tool == .eraser || tool == .trash {
+            } else if tool == .eraser {
+                ToolState.shared.isCursorMode = false
+                appDelegate.overlayWindow?.ignoresMouseEvents = false
+                appDelegate.overlayWindow?.orderFront(nil)
+            } else if tool == .trash {
                 ToolState.shared.isCursorMode = false
                 appDelegate.overlayWindow?.ignoresMouseEvents = false
                 appDelegate.overlayWindow?.clearDrawing()
