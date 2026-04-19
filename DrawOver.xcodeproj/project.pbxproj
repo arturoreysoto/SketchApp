@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		06B4E0D72F87A21A00F8174C /* SketchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SketchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		06B4E0D72F87A21A00F8174C /* DrawOver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DrawOver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		06B4E0D92F87A21A00F8174C /* SketchApp */ = {
+		06B4E0D92F87A21A00F8174C /* DrawOver */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SketchApp;
+			path = DrawOver;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -30,7 +30,7 @@
 		06B4E0CE2F87A21A00F8174C = {
 			isa = PBXGroup;
 			children = (
-				06B4E0D92F87A21A00F8174C /* SketchApp */,
+				06B4E0D92F87A21A00F8174C /* DrawOver */,
 				06B4E0D82F87A21A00F8174C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -38,7 +38,7 @@
 		06B4E0D82F87A21A00F8174C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				06B4E0D72F87A21A00F8174C /* SketchApp.app */,
+				06B4E0D72F87A21A00F8174C /* DrawOver.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -46,9 +46,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		06B4E0D62F87A21A00F8174C /* SketchApp */ = {
+		06B4E0D62F87A21A00F8174C /* DrawOver */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 06B4E0E22F87A21B00F8174C /* Build configuration list for PBXNativeTarget "SketchApp" */;
+			buildConfigurationList = 06B4E0E22F87A21B00F8174C /* Build configuration list for PBXNativeTarget "DrawOver" */;
 			buildPhases = (
 				06B4E0D32F87A21A00F8174C /* Sources */,
 				06B4E0D42F87A21A00F8174C /* Frameworks */,
@@ -57,11 +57,11 @@
 			buildRules = (
 			);
 			fileSystemSynchronizedGroups = (
-				06B4E0D92F87A21A00F8174C /* SketchApp */,
+				06B4E0D92F87A21A00F8174C /* DrawOver */,
 			);
-			name = SketchApp;
+			name = DrawOver;
 			productName = SketchApp;
-			productReference = 06B4E0D72F87A21A00F8174C /* SketchApp.app */;
+			productReference = 06B4E0D72F87A21A00F8174C /* DrawOver.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -79,7 +79,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 06B4E0D22F87A21A00F8174C /* Build configuration list for PBXProject "SketchApp" */;
+			buildConfigurationList = 06B4E0D22F87A21A00F8174C /* Build configuration list for PBXProject "DrawOver" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -93,7 +93,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				06B4E0D62F87A21A00F8174C /* SketchApp */,
+				06B4E0D62F87A21A00F8174C /* DrawOver */,
 			);
 		};
 /* End PBXProject section */
@@ -115,7 +115,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		06B4E0E02F87A21B00F8174C /* Debug configuration for PBXProject "SketchApp" */ = {
+		06B4E0E02F87A21B00F8174C /* Debug configuration for PBXProject "DrawOver" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -178,7 +178,7 @@
 			};
 			name = Debug;
 		};
-		06B4E0E12F87A21B00F8174C /* Release configuration for PBXProject "SketchApp" */ = {
+		06B4E0E12F87A21B00F8174C /* Release configuration for PBXProject "DrawOver" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -233,7 +233,7 @@
 			};
 			name = Release;
 		};
-		06B4E0E32F87A21B00F8174C /* Debug configuration for PBXNativeTarget "SketchApp" */ = {
+		06B4E0E32F87A21B00F8174C /* Debug configuration for PBXNativeTarget "DrawOver" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -246,7 +246,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SketchApp;
+				INFOPLIST_KEY_CFBundleDisplayName = DrawOver;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -254,7 +254,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ars.SketchApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ars.DrawOver;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -266,7 +266,7 @@
 			};
 			name = Debug;
 		};
-		06B4E0E42F87A21B00F8174C /* Release configuration for PBXNativeTarget "SketchApp" */ = {
+		06B4E0E42F87A21B00F8174C /* Release configuration for PBXNativeTarget "DrawOver" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -279,7 +279,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = SketchApp;
+				INFOPLIST_KEY_CFBundleDisplayName = DrawOver;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -287,7 +287,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.ars.SketchApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ars.DrawOver;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -302,19 +302,19 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		06B4E0D22F87A21A00F8174C /* Build configuration list for PBXProject "SketchApp" */ = {
+		06B4E0D22F87A21A00F8174C /* Build configuration list for PBXProject "DrawOver" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				06B4E0E02F87A21B00F8174C /* Debug configuration for PBXProject "SketchApp" */,
-				06B4E0E12F87A21B00F8174C /* Release configuration for PBXProject "SketchApp" */,
+				06B4E0E02F87A21B00F8174C /* Debug configuration for PBXProject "DrawOver" */,
+				06B4E0E12F87A21B00F8174C /* Release configuration for PBXProject "DrawOver" */,
 			);
 			defaultConfigurationName = Release;
 		};
-		06B4E0E22F87A21B00F8174C /* Build configuration list for PBXNativeTarget "SketchApp" */ = {
+		06B4E0E22F87A21B00F8174C /* Build configuration list for PBXNativeTarget "DrawOver" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				06B4E0E32F87A21B00F8174C /* Debug configuration for PBXNativeTarget "SketchApp" */,
-				06B4E0E42F87A21B00F8174C /* Release configuration for PBXNativeTarget "SketchApp" */,
+				06B4E0E32F87A21B00F8174C /* Debug configuration for PBXNativeTarget "DrawOver" */,
+				06B4E0E42F87A21B00F8174C /* Release configuration for PBXNativeTarget "DrawOver" */,
 			);
 			defaultConfigurationName = Release;
 		};

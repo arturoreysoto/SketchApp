@@ -7,10 +7,6 @@ struct SketchAppApp: App {
     
     var body: some Scene {
         MenuBarExtra {
-            Button("Mostrar/Ocultar barra  ⌘⇧S") {
-                appDelegate.toggleToolbar()
-            }
-            Divider()
             Button("Salir") {
                 NSApplication.shared.terminate(nil)
             }

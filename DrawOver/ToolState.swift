@@ -10,5 +10,7 @@ class ToolState: ObservableObject {
 enum ShapeType {
     case line
     case rectangle
+    case circle
+    case straightLine
     case eraser
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 import AppKit
 
-class ToolbarWindow: NSWindow {
+class ToolbarWindow: NSPanel {
     override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
         guard let screen = screen ?? NSScreen.main else { return frameRect }
         let screenRect = screen.visibleFrame
@@ -37,10 +37,10 @@ enum SketchTool {
     case cursor
     case pencil
     case rectangle
+    case circle
+    case line
     case scribble
     case eraser
-    case lasso
-    case ruler
     case trash
 }
 
@@ -63,10 +63,10 @@ struct ToolbarView: View {
             ToolButton(icon: "pointer.arrow.ipad", tool: .cursor, selected: $selectedTool, appDelegate: appDelegate)
             ToolButton(icon: "pencil.tip", tool: .pencil, selected: $selectedTool, appDelegate: appDelegate)
             ToolButton(icon: "square", tool: .rectangle, selected: $selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "circle", tool: .circle, selected: $selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "line.diagonal", tool: .line, selected: $selectedTool, appDelegate: appDelegate)
             ToolButton(icon: "scribble", tool: .scribble, selected: $selectedTool, appDelegate: appDelegate)
             ToolButton(icon: "eraser", tool: .eraser, selected: $selectedTool, appDelegate: appDelegate)
-            ToolButton(icon: "lasso.badge.sparkles", tool: .lasso, selected: $selectedTool, appDelegate: appDelegate)
-            ToolButton(icon: "pencil.and.ruler", tool: .ruler, selected: $selectedTool, appDelegate: appDelegate)
             ToolButton(icon: "trash", tool: .trash, selected: $selectedTool, appDelegate: appDelegate)
         }
         .padding(.horizontal, 20)
@@ -85,14 +85,9 @@ struct ToolButton: View {
     var body: some View {
         Button {
             selected = tool
-            ToolState.shared.currentTool = tool == .rectangle ? .rectangle : tool == .eraser ? .eraser : .line
-            if tool == .cursor || tool == .lasso || tool == .ruler {
+            if tool == .cursor {
                 ToolState.shared.isCursorMode = true
                 appDelegate.overlayWindow?.ignoresMouseEvents = true
-            } else if tool == .eraser {
-                ToolState.shared.isCursorMode = false
-                appDelegate.overlayWindow?.ignoresMouseEvents = false
-                appDelegate.overlayWindow?.orderFront(nil)
             } else if tool == .trash {
                 ToolState.shared.isCursorMode = false
                 appDelegate.overlayWindow?.ignoresMouseEvents = false
@@ -101,6 +96,10 @@ struct ToolButton: View {
                 ToolState.shared.isCursorMode = false
                 appDelegate.overlayWindow?.ignoresMouseEvents = false
                 appDelegate.overlayWindow?.orderFront(nil)
+                ToolState.shared.currentTool = tool == .rectangle ? .rectangle :
+                                                tool == .circle    ? .circle    :
+                                                tool == .line      ? .straightLine :
+                                                tool == .eraser    ? .eraser    : .line
             }
         } label: {
             Image(systemName: icon)
