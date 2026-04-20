@@ -122,17 +122,25 @@ struct ToolbarView: View {
 }
 
 func saveScreenshot(appDelegate: AppDelegate) {
-    guard let screen = NSScreen.main else { return }
-    let displayID = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as! CGDirectDisplayID
-    guard let cgImage = CGDisplayCreateImage(displayID) else { return }
     let panel = NSSavePanel()
     panel.allowedContentTypes = [.png]
     panel.nameFieldStringValue = "DrawOver-capture.png"
     panel.begin { response in
         guard response == .OK, let url = panel.url else { return }
-        let rep = NSBitmapImageRep(cgImage: cgImage)
-        if let data = rep.representation(using: .png, properties: [:]) {
-            try? data.write(to: url)
+        
+        guard let overlayWindow = appDelegate.overlayWindow,
+              let contentView = overlayWindow.contentView else { return }
+        
+        let rep = contentView.bitmapImageRepForCachingDisplay(in: contentView.bounds)!
+        contentView.cacheDisplay(in: contentView.bounds, to: rep)
+        
+        let image = NSImage(size: contentView.bounds.size)
+        image.addRepresentation(rep)
+        
+        if let tiffData = image.tiffRepresentation,
+           let bitmapRep = NSBitmapImageRep(data: tiffData),
+           let pngData = bitmapRep.representation(using: .png, properties: [:]) {
+            try? pngData.write(to: url)
         }
     }
 }

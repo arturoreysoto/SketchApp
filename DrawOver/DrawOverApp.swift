@@ -45,6 +45,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         toolbarController?.showWindow(nil)
     }
+
     func toggleToolbar() {
         if toolbarController?.window?.isVisible == true {
             toolbarController?.close()
