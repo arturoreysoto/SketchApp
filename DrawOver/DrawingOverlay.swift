@@ -50,18 +50,26 @@ struct DrawingView: View {
             DragGesture(minimumDistance: 0)
                 .onChanged { value in
                     guard !toolState.isCursorMode else { return }
-                    
+
                     if toolState.currentTool == .eraser {
                         eraseAt(point: value.location)
                         return
                     }
-                    
+
                     if currentShape.points.isEmpty {
-                        currentShape = DrawnShape(type: toolState.currentTool, points: [], color: toolState.currentColor, width: 6)
+                        // Detectar Shift para flecha
+                        let isShift = NSEvent.modifierFlags.contains(.shift)
+                        let shapeType: ShapeType
+                        if toolState.currentTool == .straightLine && isShift {
+                            shapeType = .arrow
+                        } else {
+                            shapeType = toolState.currentTool
+                        }
+                        currentShape = DrawnShape(type: shapeType, points: [], color: toolState.currentColor, width: 6)
                     }
-                    
-                    switch toolState.currentTool {
-                    case .rectangle, .circle, .straightLine:
+
+                    switch currentShape.type {
+                    case .rectangle, .circle, .straightLine, .arrow:
                         currentShape.points = [value.startLocation, value.location]
                     default:
                         currentShape.points.append(value.location)
@@ -72,7 +80,7 @@ struct DrawingView: View {
                     guard toolState.currentTool != .eraser else { return }
                     guard !currentShape.points.isEmpty else { return }
                     shapes.append(currentShape)
-                    currentShape = DrawnShape(type: toolState.currentTool, points: [], color: .black, width: 6)
+                    currentShape = DrawnShape(type: toolState.currentTool, points: [], color: toolState.currentColor, width: 6)
                 }
         )
     }
@@ -89,7 +97,6 @@ struct DrawingView: View {
                     height: abs(shape.points[1].y - shape.points[0].y)
                 )
                 return rect.contains(point)
-
             case .circle:
                 guard shape.points.count == 2 else { return false }
                 let cx = (shape.points[0].x + shape.points[1].x) / 2
@@ -100,13 +107,11 @@ struct DrawingView: View {
                 let dx = (point.x - cx) / rx
                 let dy = (point.y - cy) / ry
                 return (dx * dx + dy * dy) <= 1.0
-
-            case .straightLine:
+            case .straightLine, .arrow:
                 guard shape.points.count == 2 else { return false }
                 return pointDistance(shape.points[0], point) < 20 ||
                        pointDistance(shape.points[1], point) < 20 ||
                        distanceFromPointToSegment(point, shape.points[0], shape.points[1]) < 20
-
             default:
                 return shape.points.contains { shapePoint in
                     pointDistance(shapePoint, point) < 20
@@ -127,7 +132,7 @@ struct DrawingView: View {
 
     func drawShape(context: GraphicsContext, shape: DrawnShape) {
         let style = StrokeStyle(lineWidth: shape.width, lineCap: .round, lineJoin: .round)
-        
+
         switch shape.type {
         case .line:
             guard shape.points.count > 1 else { return }
@@ -166,6 +171,38 @@ struct DrawingView: View {
             path.move(to: shape.points[0])
             path.addLine(to: shape.points[1])
             context.stroke(path, with: .color(shape.color), style: style)
+
+        case .arrow:
+            guard shape.points.count == 2 else { return }
+            let start = shape.points[0]
+            let end = shape.points[1]
+
+            // Línea principal
+            var path = Path()
+            path.move(to: start)
+            path.addLine(to: end)
+            context.stroke(path, with: .color(shape.color), style: style)
+
+            // Punta de flecha
+            let arrowLength: CGFloat = 20
+            let arrowAngle: CGFloat = .pi / 6
+            let angle = atan2(end.y - start.y, end.x - start.x)
+
+            let tip1 = CGPoint(
+                x: end.x - arrowLength * cos(angle - arrowAngle),
+                y: end.y - arrowLength * sin(angle - arrowAngle)
+            )
+            let tip2 = CGPoint(
+                x: end.x - arrowLength * cos(angle + arrowAngle),
+                y: end.y - arrowLength * sin(angle + arrowAngle)
+            )
+
+            var arrowPath = Path()
+            arrowPath.move(to: end)
+            arrowPath.addLine(to: tip1)
+            arrowPath.move(to: end)
+            arrowPath.addLine(to: tip2)
+            context.stroke(arrowPath, with: .color(shape.color), style: style)
 
         case .eraser:
             break

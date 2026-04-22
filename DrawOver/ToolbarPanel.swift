@@ -170,6 +170,7 @@ struct ToolButton: View {
                                                 tool == .circle    ? .circle    :
                                                 tool == .line      ? .straightLine :
                                                 tool == .eraser    ? .eraser    : .line
+
             }
         } label: {
             Image(systemName: icon)
