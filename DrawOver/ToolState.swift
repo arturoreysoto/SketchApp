@@ -6,7 +6,7 @@ class ToolState: ObservableObject {
     @Published var currentTool: ShapeType = .line
     @Published var isCursorMode: Bool = false
     @Published var currentColor: Color = .black
-    @Published var isShiftPressed: Bool = false
+    @Published var selectedTool: SketchTool = .cursor
 }
 
 enum ShapeType {

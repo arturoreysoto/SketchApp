@@ -32,9 +32,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var toolbarController: ToolbarWindowController?
     var overlayWindow: DrawingOverlayWindow?
     private var eventMonitor: Any?
+    private var localMonitor: Any?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Asegura que hay un valor por defecto guardado
         if UserDefaults.standard.string(forKey: "shortcutKey") == nil {
             UserDefaults.standard.set("s", forKey: "shortcutKey")
         }
@@ -49,26 +49,89 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSEvent.removeMonitor(monitor)
             eventMonitor = nil
         }
+        if let monitor = localMonitor {
+            NSEvent.removeMonitor(monitor)
+            localMonitor = nil
+        }
+
         let key = UserDefaults.standard.string(forKey: "shortcutKey") ?? "s"
 
         // Monitor global — cuando otra app tiene el foco
-        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { event in
+        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self = self else { return }
             let cmdShift = event.modifierFlags.contains([.command, .shift])
             if cmdShift && event.charactersIgnoringModifiers == key {
                 DispatchQueue.main.async { self.toggleToolbar() }
+                return
             }
+            guard !event.modifierFlags.contains(.command),
+                  !event.modifierFlags.contains(.shift) else { return }
+            self.handleToolShortcut(event.charactersIgnoringModifiers ?? "")
         }
 
         // Monitor local — cuando DrawOver tiene el foco
-        NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+        localMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            guard let self = self else { return event }
             let cmdShift = event.modifierFlags.contains([.command, .shift])
             if cmdShift && event.charactersIgnoringModifiers == key {
                 DispatchQueue.main.async { self.toggleToolbar() }
                 return nil
             }
-            return event
+            guard !event.modifierFlags.contains(.command),
+                  !event.modifierFlags.contains(.shift) else { return event }
+            let handled = self.handleToolShortcut(event.charactersIgnoringModifiers ?? "")
+            return handled ? nil : event
         }
-    
+    }
+
+    @discardableResult
+    func handleToolShortcut(_ key: String) -> Bool {
+        switch key {
+        case "1":
+            DispatchQueue.main.async {
+                ToolState.shared.isCursorMode = true
+                ToolState.shared.selectedTool = .cursor
+                self.overlayWindow?.ignoresMouseEvents = true
+            }
+        case "2":
+            DispatchQueue.main.async {
+                ToolState.shared.currentTool = .line
+                ToolState.shared.selectedTool = .pencil
+                ToolState.shared.isCursorMode = false
+                self.overlayWindow?.ignoresMouseEvents = false
+            }
+        case "3":
+            DispatchQueue.main.async {
+                ToolState.shared.currentTool = .rectangle
+                ToolState.shared.selectedTool = .rectangle
+                ToolState.shared.isCursorMode = false
+                self.overlayWindow?.ignoresMouseEvents = false
+            }
+        case "4":
+            DispatchQueue.main.async {
+                ToolState.shared.currentTool = .circle
+                ToolState.shared.selectedTool = .circle
+                ToolState.shared.isCursorMode = false
+                self.overlayWindow?.ignoresMouseEvents = false
+            }
+        case "5":
+            DispatchQueue.main.async {
+                ToolState.shared.currentTool = .straightLine
+                ToolState.shared.selectedTool = .line
+                ToolState.shared.isCursorMode = false
+                self.overlayWindow?.ignoresMouseEvents = false
+            }
+        case "6":
+            DispatchQueue.main.async {
+                ToolState.shared.currentTool = .eraser
+                ToolState.shared.selectedTool = .eraser
+                ToolState.shared.isCursorMode = false
+                self.overlayWindow?.ignoresMouseEvents = false
+            }
+        default:
+            return false
+        }
+        return true
     }
 
     func showToolbar() {
@@ -88,7 +151,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             showToolbar()
             ToolState.shared.isCursorMode = true
             overlayWindow?.ignoresMouseEvents = true
-            overlayWindow?.orderOut(nil) // ← añade esto
+            overlayWindow?.orderOut(nil)
         }
     }
 }
@@ -96,8 +159,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 struct SettingsView: View {
     @AppStorage("shortcutKey") private var shortcutKey: String = "s"
     @State private var isRecording = false
-    @State private var recordedShortcut = ""
-    private var keyMonitor: Any? = nil
 
     var body: some View {
         Form {
@@ -131,6 +192,21 @@ struct SettingsView: View {
                 }
             } header: {
                 Text("Keyboard")
+            }
+
+            Section {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("1 — Cursor")
+                    Text("2 — Pencil")
+                    Text("3 — Rectangle")
+                    Text("4 — Circle")
+                    Text("5 — Line")
+                    Text("6 — Eraser")
+                }
+                .font(.system(size: 12))
+                .foregroundStyle(.secondary)
+            } header: {
+                Text("Tool shortcuts")
             }
         }
         .formStyle(.grouped)

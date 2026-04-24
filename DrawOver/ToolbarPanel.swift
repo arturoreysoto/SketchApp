@@ -57,63 +57,36 @@ struct GlassModifier: ViewModifier {
 
 struct ToolbarView: View {
     let appDelegate: AppDelegate
-    @State private var selectedTool: SketchTool = .cursor
     @ObservedObject private var toolState = ToolState.shared
 
     let colors: [Color] = [.black, .white, .red, .orange, .yellow, .green, .blue, .purple]
 
     var body: some View {
         HStack(spacing: 16) {
-            ToolButton(icon: "pointer.arrow.ipad", tool: .cursor, selected: $selectedTool, appDelegate: appDelegate)
-            ToolButton(icon: "pencil.tip", tool: .pencil, selected: $selectedTool, appDelegate: appDelegate)
-            ToolButton(icon: "square", tool: .rectangle, selected: $selectedTool, appDelegate: appDelegate)
-            ToolButton(icon: "circle", tool: .circle, selected: $selectedTool, appDelegate: appDelegate)
-            ToolButton(icon: "line.diagonal", tool: .line, selected: $selectedTool, appDelegate: appDelegate)
-            ToolButton(icon: "eraser", tool: .eraser, selected: $selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "pointer.arrow.ipad", tool: .cursor, selected: $toolState.selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "pencil.tip", tool: .pencil, selected: $toolState.selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "square", tool: .rectangle, selected: $toolState.selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "circle", tool: .circle, selected: $toolState.selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "line.diagonal", tool: .line, selected: $toolState.selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "eraser", tool: .eraser, selected: $toolState.selectedTool, appDelegate: appDelegate)
 
-            // Separador
             Divider()
                 .frame(height: 20)
                 .opacity(0.3)
 
-            // Colores
             HStack(spacing: 8) {
                 ForEach(colors, id: \.self) { color in
-                    Button {
-                        toolState.currentColor = color
-                    } label: {
-                        Circle()
-                            .fill(color)
-                            .frame(width: 16, height: 16)
-                            .overlay(
-                                Circle().stroke(
-                                    toolState.currentColor == color ? Color.primary : Color.primary.opacity(0.15),
-                                    lineWidth: toolState.currentColor == color ? 2 : 1
-                                )
-                            )
-                            .scaleEffect(toolState.currentColor == color ? 1.2 : 1.0)
-                            .animation(.spring(response: 0.2, dampingFraction: 0.6), value: toolState.currentColor == color)
-                    }
-                    .buttonStyle(.plain)
+                    ColorButton(color: color)
                 }
             }
 
-            // Separador
             Divider()
                 .frame(height: 20)
                 .opacity(0.3)
 
-            // Compartir
-            Button {
-                saveScreenshot(appDelegate: appDelegate)
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 18))
-                    .foregroundStyle(Color.secondary)
-            }
-            .buttonStyle(.plain)
+            ShareButton(appDelegate: appDelegate)
 
-            ToolButton(icon: "trash", tool: .trash, selected: $selectedTool, appDelegate: appDelegate)
+            ToolButton(icon: "trash", tool: .trash, selected: $toolState.selectedTool, appDelegate: appDelegate)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
@@ -122,21 +95,20 @@ struct ToolbarView: View {
 }
 
 func saveScreenshot(appDelegate: AppDelegate) {
+    ToolState.shared.isCursorMode = true
+    appDelegate.overlayWindow?.ignoresMouseEvents = true
+
     let panel = NSSavePanel()
     panel.allowedContentTypes = [.png]
     panel.nameFieldStringValue = "DrawOver-capture.png"
     panel.begin { response in
         guard response == .OK, let url = panel.url else { return }
-        
         guard let overlayWindow = appDelegate.overlayWindow,
               let contentView = overlayWindow.contentView else { return }
-        
         let rep = contentView.bitmapImageRepForCachingDisplay(in: contentView.bounds)!
         contentView.cacheDisplay(in: contentView.bounds, to: rep)
-        
         let image = NSImage(size: contentView.bounds.size)
         image.addRepresentation(rep)
-        
         if let tiffData = image.tiffRepresentation,
            let bitmapRep = NSBitmapImageRep(data: tiffData),
            let pngData = bitmapRep.representation(using: .png, properties: [:]) {
@@ -170,7 +142,6 @@ struct ToolButton: View {
                                                 tool == .circle    ? .circle    :
                                                 tool == .line      ? .straightLine :
                                                 tool == .eraser    ? .eraser    : .line
-
             }
         } label: {
             Image(systemName: icon)
@@ -178,6 +149,74 @@ struct ToolButton: View {
                 .foregroundStyle(selected == tool ? .primary : .secondary)
                 .scaleEffect(isHovered ? 1.2 : 1.0)
                 .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isHovered)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
+struct ColorButton: View {
+    let color: Color
+    @ObservedObject private var toolState = ToolState.shared
+    @State private var isHovered = false
+
+    var isSelected: Bool { toolState.currentColor == color }
+
+    var body: some View {
+        Button {
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.5)) {
+                toolState.currentColor = color
+            }
+        } label: {
+            Circle()
+                .fill(color)
+                .frame(width: 16, height: 16)
+                .shadow(
+                    color: isHovered || isSelected ? color.opacity(0.6) : .clear,
+                    radius: isHovered || isSelected ? 5 : 0
+                )
+                .overlay(
+                    Circle().stroke(
+                        isSelected ? Color.primary : Color.primary.opacity(0.15),
+                        lineWidth: isSelected ? 2 : 1
+                    )
+                )
+                .scaleEffect(isHovered ? 1.3 : isSelected ? 1.2 : 1.0)
+                .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isHovered)
+                .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isSelected)
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
+struct ShareButton: View {
+    let appDelegate: AppDelegate
+    @State private var isHovered = false
+    @State private var isPressed = false
+
+    var body: some View {
+        Button {
+            withAnimation(.spring(response: 0.2, dampingFraction: 0.5)) {
+                isPressed = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    isPressed = false
+                }
+            }
+            saveScreenshot(appDelegate: appDelegate)
+        } label: {
+            Image(systemName: "square.and.arrow.up")
+                .font(.system(size: 18))
+                .foregroundStyle(isHovered ? .primary : .secondary)
+                .scaleEffect(isPressed ? 0.85 : isHovered ? 1.2 : 1.0)
+                .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isHovered)
+                .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isPressed)
         }
         .buttonStyle(.plain)
         .onHover { hovering in
