@@ -55,6 +55,7 @@ struct GlassModifier: ViewModifier {
     }
 }
 
+
 struct ToolbarView: View {
     let appDelegate: AppDelegate
     @ObservedObject private var toolState = ToolState.shared
