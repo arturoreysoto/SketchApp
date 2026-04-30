@@ -1,6 +1,21 @@
 import SwiftUI
 import AppKit
 
+let appColor = Color(hex: "#5E5B59")
+
+// MARK: - Color helper
+extension Color {
+    init(hex: String) {
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r = Double((int >> 16) & 0xFF) / 255
+        let g = Double((int >> 8) & 0xFF) / 255
+        let b = Double(int & 0xFF) / 255
+        self.init(red: r, green: g, blue: b)
+    }
+}
+
 @main
 struct DrawOverApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -193,18 +208,41 @@ struct SettingsView: View {
                     Label("About", systemImage: "info.circle")
                 }
         }
-        .frame(width: 560, height: 240)
+        .frame(width: 500, height: 220)
     }
 }
+
+import ServiceManagement
 
 // MARK: - General Tab
 struct GeneralSettingsTab: View {
     @AppStorage("shortcutKey") private var shortcutKey: String = "s"
     @State private var isRecording = false
+    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
 
     var body: some View {
         Form {
             Section {
+                // ← Launch at Login
+                HStack {
+                    Text("Launch at login")
+                    Spacer()
+                    Toggle("", isOn: $launchAtLogin)
+                        .toggleStyle(.switch)
+                        .onChange(of: launchAtLogin) {
+                            do {
+                                if launchAtLogin {
+                                    try SMAppService.mainApp.register()
+                                } else {
+                                    try SMAppService.mainApp.unregister()
+                                }
+                            } catch {
+                                print("Launch at login error: \(error)")
+                            }
+                        }
+                }
+
+                // Toggle shortcut
                 HStack {
                     Text("Toggle shortcut")
                     Spacer()
@@ -261,54 +299,45 @@ struct GeneralSettingsTab: View {
 // MARK: - About Tab
 struct AboutTab: View {
     var body: some View {
-        VStack(spacing: 16) {
-            HStack(alignment: .center, spacing: 24) {
-                Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
+        VStack(spacing: 12) {
+            HStack(alignment: .center, spacing: 20) {
+                Image(nsImage: NSImage(named: "AppIconMarketing") ?? NSImage())
                     .resizable()
-                    .frame(width: 80, height: 80)
-                    .cornerRadius(18)
+                    .frame(width: 90, height: 90)
+                    .cornerRadius(20)
 
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text("Draw Over")
-                        .font(.system(size: 22, weight: .bold))
-                        .fixedSize()
+                        .font(.system(size: 20, weight: .bold))
 
                     Text("Version 1.1.0")
-                        .font(.system(size: 13))
+                        .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 
-                    HStack(spacing: 5) {
+                    HStack(spacing: 4) {
                         Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.green)
-                            .font(.system(size: 13))
+                            .foregroundColor(Color(hex: "#14b8a6"))
+                            .font(.system(size: 12))
                         Text("Licensed Free")
-                            .font(.system(size: 13, weight: .medium))
+                            .font(.system(size: 12, weight: .medium))
                             .foregroundStyle(.secondary)
                     }
                 }
 
                 Spacer()
 
-                VStack(spacing: 8) {
+                VStack(spacing: 6) {
                     Button("What's New") {
-                        openPanelWindow(
-                            view: WhatsNewView(),
-                            title: "What's New",
-                            width: 460,
-                            height: 460
-                        )
+                        openPanelWindow(view: WhatsNewView(), title: "What's New", width: 460, height: 460)
                     }
                     .buttonStyle(AboutButtonStyle())
+                    .focusable(false)  // ← añade esto
 
                     Button("Introduction") {
-                        openPanelWindow(
-                            view: IntroductionView(),
-                            title: "Introduction",
-                            width: 460,
-                            height: 560
-                        )
+                        openPanelWindow(view: IntroductionView(), title: "Introduction", width: 460, height: 520)
                     }
                     .buttonStyle(AboutButtonStyle())
+                    .focusable(false)  // ← añade esto
 
                     Button("Support") {
                         if let url = URL(string: "https://magicappslab.app/") {
@@ -316,35 +345,46 @@ struct AboutTab: View {
                         }
                     }
                     .buttonStyle(AboutButtonStyle())
+                    .focusable(false)  // ← añade esto
                 }
             }
-            .padding(20)
-            .background(Color(NSColor.controlBackgroundColor))
-            .cornerRadius(12)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 30)
+            .background(Color(hex: "#FAFAFA"))// ← fondo gris como Klack
+            .cornerRadius(12)                                  // ← esquinas redondeadas
 
             Text("© 2025 Magic Apps Lab. All rights reserved.")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
         }
-        .padding(20)
+        .padding(16)
     }
 }
 
 // MARK: - About Button Style
 struct AboutButtonStyle: ButtonStyle {
+    @State private var isHovered = false
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 13))
             .frame(width: 130)
-            .padding(.vertical, 7)
-            .background(configuration.isPressed
-                ? Color.secondary.opacity(0.2)
-                : Color(NSColor.controlBackgroundColor))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+            .padding(.vertical, 6)
+            .background(
+                isHovered
+                    ? Color(hex: "#5E5B59").opacity(0.12)
+                    : Color.clear
             )
             .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.2), lineWidth: 0.5)
+            )
+            .onHover { hovering in
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    isHovered = hovering
+                }
+            }
     }
 }
 
@@ -353,7 +393,7 @@ struct WhatsNewView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 10) {
-                Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
+                Image(nsImage: NSImage(named: "AppIconMarketing") ?? NSImage())
                     .resizable()
                     .frame(width: 60, height: 60)
                     .cornerRadius(14)
@@ -365,34 +405,19 @@ struct WhatsNewView: View {
             .padding(.bottom, 20)
 
             VStack(spacing: 10) {
-                WhatsNewRow(
-                    icon: "gearshape.2",
-                    title: "New Settings",
-                    description: "Redesigned settings with a cleaner, more professional look.",
-                    badge: "New"
-                )
-                WhatsNewRow(
-                    icon: "info.circle",
-                    title: "About Section",
-                    description: "Version info, license status and quick links in one place."
-                )
-                WhatsNewRow(
-                    icon: "keyboard",
-                    title: "Tool Shortcuts",
-                    description: "Use keys 1–6 to switch tools instantly while drawing."
-                )
+                WhatsNewRow(icon: "gearshape.2", title: "New Settings", description: "Redesigned settings with a cleaner, more professional look.", badge: "New")
+                WhatsNewRow(icon: "info.circle", title: "About Section", description: "Version info, license status and quick links in one place.")
+                WhatsNewRow(icon: "keyboard", title: "Tool Shortcuts", description: "Use keys 1–6 to switch tools instantly while drawing.")
             }
             .padding(.horizontal, 20)
 
             Spacer()
 
-            Button("Continue") {
-                NSApp.keyWindow?.close()
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(.pink)
-            .padding(.bottom, 28)
+            Button("Continue") { NSApp.keyWindow?.close() }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(appColor)
+                .padding(.bottom, 28)
         }
         .frame(width: 460, height: 460)
     }
@@ -409,9 +434,9 @@ struct WhatsNewRow: View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
                 .font(.system(size: 24))
-                .foregroundStyle(.pink)
+                .foregroundStyle(appColor)
                 .frame(width: 44, height: 44)
-                .background(Color.pink.opacity(0.1))
+                .background(appColor.opacity(0.1))
                 .cornerRadius(10)
 
             VStack(alignment: .leading, spacing: 3) {
@@ -423,8 +448,8 @@ struct WhatsNewRow: View {
                             .font(.system(size: 10, weight: .semibold))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
-                            .background(Color.pink.opacity(0.15))
-                            .foregroundColor(.pink)
+                            .background(appColor.opacity(0.15))
+                            .foregroundColor(appColor)
                             .cornerRadius(4)
                     }
                 }
@@ -446,7 +471,7 @@ struct IntroductionView: View {
     var body: some View {
         VStack(spacing: 0) {
             VStack(spacing: 10) {
-                Image(nsImage: NSImage(named: "AppIcon") ?? NSImage())
+                Image(nsImage: NSImage(named: "AppIconMarketing") ?? NSImage())
                     .resizable()
                     .frame(width: 60, height: 60)
                     .cornerRadius(14)
@@ -467,15 +492,13 @@ struct IntroductionView: View {
 
             Spacer()
 
-            Button("Got it!") {
-                NSApp.keyWindow?.close()
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.large)
-            .tint(.pink)
-            .padding(.bottom, 24)
+            Button("Got it!") { NSApp.keyWindow?.close() }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
+                .tint(appColor)
+                .padding(.bottom, 24)
         }
-        .frame(width: 460, height: 480)
+        .frame(width: 460, height: 520)
     }
 }
 
@@ -491,7 +514,7 @@ struct IntroRow: View {
                 .font(.system(size: 15, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 30, height: 30)
-                .background(Color(red: 1.0, green: 0.45, blue: 0.45))  // ← rojo pastel
+                .background(appColor)
                 .cornerRadius(8)
 
             VStack(alignment: .leading, spacing: 3) {

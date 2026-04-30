@@ -1,61 +1,61 @@
 {
   "images" : [
     {
-      "filename" : "drawover_icon_16.png",
+      "filename" : "draw_over_1024_xcode_16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "drawover_icon_32 1.png",
+      "filename" : "draw_over_1024_xcode_32 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "drawover_icon_32.png",
+      "filename" : "draw_over_1024_xcode_32.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "drawover_icon_64png.png",
+      "filename" : "draw_over_1024_xcode_64.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "drawover_icon_128.png",
+      "filename" : "draw_over_1024_xcode_128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "drawover_icon_256 1.png",
+      "filename" : "draw_over_1024_xcode_256 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "drawover_icon_256.png",
+      "filename" : "draw_over_1024_xcode_256.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "drawover_icon_512 1.png",
+      "filename" : "draw_over_1024_xcode_512 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "drawover_icon_512.png",
+      "filename" : "draw_over_1024_xcode_512.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "drawover_icon_1024.png",
+      "filename" : "draw_over_1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
