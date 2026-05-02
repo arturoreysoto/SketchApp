@@ -3,6 +3,8 @@ import AppKit
 import UniformTypeIdentifiers
 
 class ToolbarWindow: NSPanel {
+
+
     override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
         guard let screen = screen ?? NSScreen.main else { return frameRect }
         let screenRect = screen.visibleFrame
@@ -23,6 +25,7 @@ class ToolbarWindowController: NSWindowController {
             backing: .buffered,
             defer: false
         )
+        window.becomesKeyOnlyIfNeeded = true
         window.level = .statusBar
         window.isOpaque = false
         window.backgroundColor = .clear
@@ -31,6 +34,7 @@ class ToolbarWindowController: NSWindowController {
         window.center()
         window.contentView = NSHostingView(rootView: ToolbarView(appDelegate: appDelegate))
         self.init(window: window)
+        
     }
 }
 
@@ -59,6 +63,7 @@ struct GlassModifier: ViewModifier {
 struct ToolbarView: View {
     let appDelegate: AppDelegate
     @ObservedObject private var toolState = ToolState.shared
+    @AppStorage("toolbarOpacity") private var toolbarOpacity: Double = 1.0
 
     let colors: [Color] = [.black, .white, .red, .orange, .yellow, .green, .blue, .purple]
 
@@ -92,6 +97,7 @@ struct ToolbarView: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
         .modifier(GlassModifier())
+        .opacity(toolbarOpacity)
     }
 }
 
@@ -152,6 +158,7 @@ struct ToolButton: View {
                 .animation(.spring(response: 0.3, dampingFraction: 0.5), value: isHovered)
         }
         .buttonStyle(.plain)
+        .focusable(false)
         .onHover { hovering in
             isHovered = hovering
         }
@@ -189,6 +196,8 @@ struct ColorButton: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isSelected)
         }
         .buttonStyle(.plain)
+        .focusable(false)
+        .focusEffectDisabled() // 👈 clave para quitar el azul
         .onHover { hovering in
             isHovered = hovering
         }
@@ -220,6 +229,8 @@ struct ShareButton: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isPressed)
         }
         .buttonStyle(.plain)
+        .focusable(false)          // 👈 añadir
+        .focusEffectDisabled()     // 👈 añadir
         .onHover { hovering in
             isHovered = hovering
         }

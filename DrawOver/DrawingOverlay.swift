@@ -59,6 +59,11 @@ struct DrawingView: View {
                     if currentShape.points.isEmpty {
                         // Detectar Shift para flecha
                         let isShift = NSEvent.modifierFlags.contains(.shift)
+                        if isShift && toolState.currentTool == .straightLine {
+                            NSCursor.crosshair.set()
+                        } else {
+                            NSCursor.arrow.set()
+                        }
                         let shapeType: ShapeType
                         if toolState.currentTool == .straightLine && isShift {
                             shapeType = .arrow

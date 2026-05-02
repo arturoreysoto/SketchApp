@@ -1,3 +1,18 @@
+struct WindowAccessor: NSViewRepresentable {
+    var callback: (NSWindow) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            if let window = view.window {
+                callback(window)
+            }
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
 import SwiftUI
 import AppKit
 
@@ -40,6 +55,15 @@ struct DrawOverApp: App {
         Settings {
             SettingsView()
         }
+        .commands {
+            CommandGroup(replacing: .help) {
+                Button("DrawOver Help") {
+                    if let url = URL(string: "https://magicappslab.app/") {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -69,18 +93,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             localMonitor = nil
         }
 
-        let key = UserDefaults.standard.string(forKey: "shortcutKey") ?? "s"
+        let key = UserDefaults.standard.string(forKey: "shortcutKey") ?? "d"
 
         eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self = self else { return }
-            let cmdShift = event.modifierFlags.contains([.command, .shift])
-            if cmdShift && event.charactersIgnoringModifiers == key {
+
+            let combo = event.modifierFlags.contains([.command, .option, .shift])
+
+            if combo && event.charactersIgnoringModifiers?.lowercased() == key.lowercased() {
                 DispatchQueue.main.async { self.toggleToolbar() }
                 return
             }
+
             guard self.toolbarController?.window?.isVisible == true else { return }
             guard !event.modifierFlags.contains(.command),
                   !event.modifierFlags.contains(.shift) else { return }
+
             self.handleToolShortcut(event.charactersIgnoringModifiers ?? "")
         }
 
@@ -191,25 +219,84 @@ func openPanelWindow<V: View>(view: V, title: String, width: CGFloat, height: CG
     window.minSize = NSSize(width: width, height: height)
     window.maxSize = NSSize(width: width, height: height)
     window.contentView = NSHostingView(rootView: view)
-    window.makeKeyAndOrderFront(nil)
+    window.orderFrontRegardless()
     NSApp.activate(ignoringOtherApps: true)
 }
 
 // MARK: - Settings
 struct SettingsView: View {
+    @State private var selection: SidebarItem = .general
+
     var body: some View {
-        TabView {
-            GeneralSettingsTab()
-                .tabItem {
-                    Label("General", systemImage: "gearshape")
+        HStack(spacing: 0) {
+
+            // Sidebar
+            VStack(alignment: .leading, spacing: 12) {
+                sidebarButton(title: "General", icon: "gearshape", item: .general)
+                sidebarButton(title: "About", icon: "info.circle", item: .about)
+                Spacer()
+            }
+            .padding(16)
+            .frame(width: 180)
+            .background(Color.clear)
+
+            Divider()
+
+            // Content
+            ZStack {
+                switch selection {
+                case .general:
+                    GeneralSettingsTab()
+                case .about:
+                    AboutTab()
                 }
-            AboutTab()
-                .tabItem {
-                    Label("About", systemImage: "info.circle")
-                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 500, height: 220)
+        .background(Color(hex: "#EEEEEE"))
+        .background(WindowAccessor { window in
+            window.backgroundColor = NSColor(calibratedRed: 238/255, green: 238/255, blue: 238/255, alpha: 1)
+        })
+        .frame(width: 650, height: 320)
     }
+
+    @ViewBuilder
+    private func sidebarButton(title: String, icon: String, item: SidebarItem) -> some View {
+        let isSelected = selection == item
+
+        HStack(spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.primary.opacity(isSelected ? 0.25 : 0.12))
+                    .frame(width: 28, height: 28)
+
+                Image(systemName: icon)
+                    .foregroundColor(.white)
+                    .font(.system(size: 12, weight: .semibold))
+            }
+
+            Text(title)
+        }
+        .font(.system(size: 13, weight: .medium))
+        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            isSelected
+                ? Color.primary.opacity(0.08)
+                : Color.clear
+        )
+        .cornerRadius(8)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            selection = item
+        }
+    }
+}
+
+enum SidebarItem {
+    case general
+    case about
 }
 
 import ServiceManagement
@@ -219,17 +306,28 @@ struct GeneralSettingsTab: View {
     @AppStorage("shortcutKey") private var shortcutKey: String = "s"
     @State private var isRecording = false
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @AppStorage("toolbarOpacity") private var toolbarOpacity: Double = 1.0
 
     var body: some View {
-        Form {
-            Section {
-                // ← Launch at Login
+        VStack(alignment: .leading, spacing: 16) {
+
+            // Title
+            Text("General")
+                .font(.system(size: 20, weight: .semibold))
+                .padding(.horizontal, 20)
+                .padding(.top, 16)
+
+            // Rows (no boxed background)
+            VStack(spacing: 0) {
+
+                // Row 1
                 HStack {
                     Text("Launch at login")
                     Spacer()
                     Toggle("", isOn: $launchAtLogin)
                         .toggleStyle(.switch)
-                        .onChange(of: launchAtLogin) {
+                        .tint(Color(hex: "#14B8A6"))
+                        .onChange(of: launchAtLogin){
                             do {
                                 if launchAtLogin {
                                     try SMAppService.mainApp.register()
@@ -240,9 +338,19 @@ struct GeneralSettingsTab: View {
                                 print("Launch at login error: \(error)")
                             }
                         }
+                        .accessibilityLabel("Launch at login")
+                        .accessibilityHint("Automatically start Draw Over when you log in")
                 }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(Color(hex: "#F4F4F4"))
 
-                // Toggle shortcut
+                Rectangle()
+                    .fill(Color.black.opacity(0.06))
+                    .frame(height: 0.5)
+                
+                
+                // Row 2
                 HStack {
                     Text("Toggle shortcut")
                     Spacer()
@@ -250,31 +358,63 @@ struct GeneralSettingsTab: View {
                         isRecording = true
                         startRecording()
                     } label: {
-                        HStack(spacing: 6) {
-                            if isRecording {
-                                Text("Press any key...")
-                                    .foregroundStyle(.secondary)
-                            } else {
-                                Text("⌘ ⇧ \(shortcutKey.uppercased())")
-                                    .fontWeight(.medium)
-                            }
+                        if isRecording {
+                            Text("Press any key...")
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("⌘ ⌥ ⇧ \(shortcutKey.uppercased())")
+                                .font(.system(size: 16, weight: .semibold, design: .monospaced))
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 7)
+                                .background(Color(hex: "#F9F9F9"))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 9)
+                                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                                )
+                                .cornerRadius(9)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(isRecording ? Color.accentColor.opacity(0.15) : Color.secondary.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 6)
-                                .stroke(isRecording ? Color.accentColor : Color.clear, lineWidth: 1.5)
-                        )
-                        .cornerRadius(6)
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel("Toggle shortcut")
+                    .accessibilityValue("Command Shift \(shortcutKey.uppercased())")
+                    .accessibilityHint("Change the keyboard shortcut")
+                    
                 }
-            } header: {
-                Text("Keyboard")
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(Color(hex: "#F4F4F4"))
+
+                Rectangle()
+                    .fill(Color.black.opacity(0.06))
+                    .frame(height: 0.5)
+
+                // Row 3 - Opacity / Contrast
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("Toolbar opacity")
+                        Spacer()
+                        Text("\(Int(toolbarOpacity * 100))%")
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Slider(value: $toolbarOpacity, in: 0.5...1.0)
+                        .tint(Color(hex: "#14B8A6"))
+                        .accessibilityLabel("Toolbar opacity")
+                        .accessibilityValue("\(Int(toolbarOpacity * 100)) percent")
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(Color(hex: "#F4F4F4"))
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.primary.opacity(0.25), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .padding(.horizontal, 20)
+
+            Spacer()
         }
-        .formStyle(.grouped)
     }
 
     func startRecording() {
@@ -340,7 +480,7 @@ struct AboutTab: View {
                     .focusable(false)  // ← añade esto
 
                     Button("Support") {
-                        if let url = URL(string: "https://magicappslab.app/") {
+                        if let url = URL(string: "https://magicappslab.app/support.html") {
                             NSWorkspace.shared.open(url)
                         }
                     }
@@ -349,13 +489,14 @@ struct AboutTab: View {
                 }
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 30)
-            .background(Color(hex: "#FAFAFA"))// ← fondo gris como Klack
+            .padding(.vertical, 40)
+            .background(Color(hex: "#FAFAFA"))// ← fondo gris
             .cornerRadius(12)                                  // ← esquinas redondeadas
 
-            Text("© 2025 Magic Apps Lab. All rights reserved.")
+            Text("© 2026 Magic Apps Lab. All rights reserved.")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
+                .padding(.top, 16)
         }
         .padding(16)
     }
@@ -378,7 +519,7 @@ struct AboutButtonStyle: ButtonStyle {
             .cornerRadius(8)
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.secondary.opacity(0.2), lineWidth: 0.5)
+                    .stroke(Color.primary.opacity(0.3), lineWidth: 0.8)
             )
             .onHover { hovering in
                 withAnimation(.easeInOut(duration: 0.15)) {
@@ -405,9 +546,19 @@ struct WhatsNewView: View {
             .padding(.bottom, 20)
 
             VStack(spacing: 10) {
-                WhatsNewRow(icon: "gearshape.2", title: "New Settings", description: "Redesigned settings with a cleaner, more professional look.", badge: "New")
-                WhatsNewRow(icon: "info.circle", title: "About Section", description: "Version info, license status and quick links in one place.")
-                WhatsNewRow(icon: "keyboard", title: "Tool Shortcuts", description: "Use keys 1–6 to switch tools instantly while drawing.")
+                WhatsNewRow(
+                    icon: "gearshape.2",
+                    title: "New Settings",
+                    description: "Redesigned with improved contrast, cleaner layout and refined controls.",
+                    badge: "New"
+                )
+
+                WhatsNewRow(
+                    icon: "info.circle",
+                    title: "About Section",
+                    description: "Updated design with clearer layout, better hierarchy and quick access to key information."
+                )
+                WhatsNewRow(icon: "keyboard", title: "Tool Shortcuts", description: "Press 1–6 to switch tools. Hold ⇧ with Line to draw arrows.")
             }
             .padding(.horizontal, 20)
 
@@ -484,7 +635,7 @@ struct IntroductionView: View {
 
             VStack(spacing: 8) {
                 IntroRow(step: "1", title: "Toggle Draw Over", description: "Press ⌘ ⇧ S to show or hide the toolbar from anywhere.")
-                IntroRow(step: "2", title: "Pick a tool", description: "Use keys 1–6: Cursor, Pencil, Rectangle, Circle, Line, Eraser.")
+                IntroRow(step: "2", title: "Pick a tool", description: "Press 1–6 to switch tools. Hold ⇧ with Line to draw arrows.")
                 IntroRow(step: "3", title: "Draw over anything", description: "Draw Over floats above all your apps. Annotate anything on screen.")
                 IntroRow(step: "4", title: "Save your work", description: "Hit the share button to save your drawing as a PNG.")
             }
