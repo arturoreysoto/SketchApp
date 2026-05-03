@@ -15,6 +15,7 @@ struct WindowAccessor: NSViewRepresentable {
 }
 import SwiftUI
 import AppKit
+import ServiceManagement
 
 let appColor = Color(hex: "#5E5B59")
 
@@ -31,20 +32,128 @@ extension Color {
     }
 }
 
+struct GlassChipStyle: ButtonStyle {
+    @State private var hovering = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(.body, design: .monospaced).weight(.semibold))
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(
+                        Color.white.opacity(
+                            configuration.isPressed ? 0.40 :
+                            hovering ? 0.50 : 0.16
+                        )
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(
+                        Color.white.opacity(hovering ? 0.7 : 0.4),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(
+                color: .black.opacity(hovering ? 0.18 : 0.06),
+                radius: hovering ? 10 : 5,
+                y: 2
+            )
+            .scaleEffect(hovering ? 1.02 : 1.0)
+            .animation(.easeOut(duration: 0.12), value: hovering)
+            .onHover { hovering = $0 }
+            
+    }
+}
+
+// MARK: - Gray Menu Button Style (no blue highlight)
+struct GrayMenuButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(configuration.isPressed ? Color.primary.opacity(0.5) : Color.primary)
+    }
+}
+
 @main
 struct DrawOverApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
         MenuBarExtra {
-            Button("Show Draw Over") {
+            Button {
                 appDelegate.showToolbar()
+            } label: {
+                Label("Show Draw Over", systemImage: "eye")
             }
+
+            Button {
+                appDelegate.toggleToolbar()
+            } label: {
+                Label("Global Shortcut", systemImage: "keyboard")
+            }
+            .keyboardShortcut("g", modifiers: [.command, .option, .shift])
+
             Divider()
+
+            Button {
+                appDelegate.handleToolShortcut("1")
+            } label: {
+                Label("Cursor", systemImage: "arrow.up.left")
+            }
+            .keyboardShortcut("1", modifiers: [])
+
+            Button {
+                appDelegate.handleToolShortcut("2")
+            } label: {
+                Label("Pencil", systemImage: "pencil")
+            }
+            .keyboardShortcut("2", modifiers: [])
+
+            Button {
+                appDelegate.handleToolShortcut("3")
+            } label: {
+                Label("Rectangle", systemImage: "rectangle")
+            }
+            .keyboardShortcut("3", modifiers: [])
+
+            Button {
+                appDelegate.handleToolShortcut("4")
+            } label: {
+                Label("Circle", systemImage: "circle")
+            }
+            .keyboardShortcut("4", modifiers: [])
+
+            Button {
+                appDelegate.handleToolShortcut("5")
+            } label: {
+                Label("Line", systemImage: "line.diagonal")
+            }
+            .keyboardShortcut("5", modifiers: [])
+
+            Button {
+                appDelegate.handleToolShortcut("5")
+            } label: {
+                Label("Arrow", systemImage: "arrow.up.right")
+            }
+            .keyboardShortcut("5", modifiers: [.shift])
+
+            Button {
+                appDelegate.handleToolShortcut("6")
+            } label: {
+                Label("Eraser", systemImage: "eraser")
+            }
+            .keyboardShortcut("6", modifiers: [])
+
+            Divider()
+
             SettingsLink {
                 Text("Settings...")
             }
+
             Divider()
+
             Button("Quit") {
                 NSApplication.shared.terminate(nil)
             }
@@ -58,7 +167,7 @@ struct DrawOverApp: App {
         .commands {
             CommandGroup(replacing: .help) {
                 Button("DrawOver Help") {
-                    if let url = URL(string: "https://magicappslab.app/") {
+                    if let url = URL(string: "https://magicappslab.app/support.html") {
                         NSWorkspace.shared.open(url)
                     }
                 }
@@ -232,8 +341,14 @@ struct SettingsView: View {
 
             // Sidebar
             VStack(alignment: .leading, spacing: 12) {
-                sidebarButton(title: "General", icon: "gearshape", item: .general)
-                sidebarButton(title: "About", icon: "info.circle", item: .about)
+                Text("General")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.bottom, 4)
+
+                sidebarItemView(title: "General", icon: "gearshape.fill", color: Color.gray, item: .general)
+                sidebarItemView(title: "About", icon: "info.circle.fill", color: Color.green, item: .about)
                 Spacer()
             }
             .padding(16)
@@ -253,11 +368,15 @@ struct SettingsView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(Color(hex: "#EEEEEE"))
+        .background(.ultraThinMaterial)
         .background(WindowAccessor { window in
-            window.backgroundColor = NSColor(calibratedRed: 238/255, green: 238/255, blue: 238/255, alpha: 1)
+            window.titleVisibility = .hidden
+            window.titlebarAppearsTransparent = true
+            window.isOpaque = false
+            window.backgroundColor = .clear
         })
-        .frame(width: 650, height: 320)
+        .frame(width: 650, height: 280)
+        .background(.ultraThinMaterial)
     }
 
     @ViewBuilder
@@ -266,12 +385,12 @@ struct SettingsView: View {
 
         HStack(spacing: 10) {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.primary.opacity(isSelected ? 0.25 : 0.12))
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.white.opacity(isSelected ? 0.12 : 0.08))
                     .frame(width: 28, height: 28)
 
                 Image(systemName: icon)
-                    .foregroundColor(.white)
+                    .foregroundStyle(Color.primary.opacity(0.9))
                     .font(.system(size: 12, weight: .semibold))
             }
 
@@ -282,24 +401,84 @@ struct SettingsView: View {
         .padding(.horizontal, 10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            isSelected
-                ? Color.primary.opacity(0.08)
-                : Color.clear
+            ZStack {
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.white.opacity(0.08))
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                        .shadow(color: Color.black.opacity(0.06), radius: 6, y: 1)
+                } else {
+                    Color.clear
+                }
+            }
         )
-        .cornerRadius(8)
         .contentShape(Rectangle())
         .onTapGesture {
             selection = item
         }
     }
+
+    @ViewBuilder
+    private func sidebarItemView(title: String, icon: String, color: Color, item: SidebarItem, badge: String? = nil) -> some View {
+        let isSelected = selection == item
+        @State var isHovering = false
+
+        HStack(spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    .fill(color.opacity(0.18))
+                    .frame(width: 26, height: 26)
+                Image(systemName: icon)
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(color)
+            }
+            Text(title)
+                .font(.system(size: 13, weight: isSelected ? .semibold : .medium))
+                .foregroundStyle(isSelected ? .primary : .secondary)
+            if let badge = badge {
+                Text(badge)
+                    .font(.system(size: 10, weight: .semibold))
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.white.opacity(0.12))
+                
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .stroke(Color.white.opacity(0.25), lineWidth: 0.8)
+                    )
+                    .cornerRadius(6)
+            }
+            Spacer()
+        }
+        .padding(.vertical, 7)
+        .padding(.horizontal, 8)
+        .background(
+            ZStack {
+                if isSelected {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.white.opacity(0.56))
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(Color.white.opacity(0.22), lineWidth: 1)
+                        .shadow(color: Color.black.opacity(0.06), radius: 6, y: 1)
+                } else if isHovering {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.black.opacity(0.05))
+                } else {
+                    Color.clear
+                }
+            }
+        )
+        .contentShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .onHover { isHovering = $0 }
+        .onTapGesture { selection = item }
+    }
 }
 
-enum SidebarItem {
+enum SidebarItem: String, CaseIterable {
     case general
     case about
 }
-
-import ServiceManagement
 
 // MARK: - General Tab
 struct GeneralSettingsTab: View {
@@ -313,7 +492,7 @@ struct GeneralSettingsTab: View {
 
             // Title
             Text("General")
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: 16, weight: .semibold))
                 .padding(.horizontal, 20)
                 .padding(.top, 16)
 
@@ -327,6 +506,7 @@ struct GeneralSettingsTab: View {
                     Toggle("", isOn: $launchAtLogin)
                         .toggleStyle(.switch)
                         .tint(Color(hex: "#14B8A6"))
+                        .focusable(false)
                         .onChange(of: launchAtLogin){
                             do {
                                 if launchAtLogin {
@@ -343,11 +523,17 @@ struct GeneralSettingsTab: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .background(Color(hex: "#F4F4F4"))
+                .background(.ultraThinMaterial)
 
                 Rectangle()
                     .fill(Color.black.opacity(0.06))
-                    .frame(height: 0.5)
+                    .frame(height: 1)
+                    .overlay(
+                        Rectangle()
+                            .fill(Color.white.opacity(0.5))
+                            .frame(height: 0.5),
+                        alignment: .top
+                    )
                 
                 
                 // Row 2
@@ -361,32 +547,38 @@ struct GeneralSettingsTab: View {
                         if isRecording {
                             Text("Press any key...")
                                 .foregroundStyle(.secondary)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.white.opacity(0.2)))
+                                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(Color.white.opacity(0.35), lineWidth: 0.8))
+                            
                         } else {
                             Text("⌘ ⌥ ⇧ \(shortcutKey.uppercased())")
-                                .font(.system(size: 16, weight: .semibold, design: .monospaced))
-                                .padding(.horizontal, 14)
-                                .padding(.vertical, 7)
-                                .background(Color(hex: "#F9F9F9"))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 9)
-                                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
-                                )
-                                .cornerRadius(9)
+                                .font(.system(size: 16, weight: .medium, design: .monospaced))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
                         }
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(GlassChipStyle())
+                    .focusable(false)
                     .accessibilityLabel("Toggle shortcut")
                     .accessibilityValue("Command Shift \(shortcutKey.uppercased())")
-                    .accessibilityHint("Change the keyboard shortcut")
+                    .accessibilityHint("Press to change the shortcut")
                     
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .background(Color(hex: "#F4F4F4"))
+                .background(.ultraThinMaterial)
 
                 Rectangle()
                     .fill(Color.black.opacity(0.06))
-                    .frame(height: 0.5)
+                    .frame(height: 1)
+                    .overlay(
+                        Rectangle()
+                            .fill(Color.white.opacity(0.5))
+                            .frame(height: 0.5),
+                        alignment: .top
+                    )
 
                 // Row 3 - Opacity / Contrast
                 VStack(alignment: .leading, spacing: 8) {
@@ -404,13 +596,14 @@ struct GeneralSettingsTab: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 12)
-                .background(Color(hex: "#F4F4F4"))
+                .background(.ultraThinMaterial)
             }
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.primary.opacity(0.25), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.white.opacity(0.35), lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .shadow(color: Color.black.opacity(0.06), radius: 8, y: 1)
             .padding(.horizontal, 20)
 
             Spacer()
@@ -445,10 +638,13 @@ struct AboutTab: View {
                     .resizable()
                     .frame(width: 90, height: 90)
                     .cornerRadius(20)
+                    
+                    
 
                 VStack(alignment: .leading, spacing: 5) {
                     Text("Draw Over")
                         .font(.system(size: 20, weight: .bold))
+                    
 
                     Text("Version 1.1.0")
                         .font(.system(size: 12))
@@ -490,7 +686,7 @@ struct AboutTab: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 40)
-            .background(Color(hex: "#FAFAFA"))// ← fondo gris
+           
             .cornerRadius(12)                                  // ← esquinas redondeadas
 
             Text("© 2026 Magic Apps Lab. All rights reserved.")
@@ -683,3 +879,4 @@ struct IntroRow: View {
         .cornerRadius(10)
     }
 }
+
