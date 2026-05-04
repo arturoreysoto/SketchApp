@@ -2,7 +2,7 @@
 
 Annotate, sketch and present — right on your screen.
 
-![Sketch Over](/Users/arturoreysoto/Downloads/sketch_over_git.png)
+![Sketch Over](sketch_over_git.png)
 
 Sketch Over is a free, native macOS drawing overlay app. It sits on top of every window, letting you draw, annotate and highlight anything on your screen — perfect for presentations, tutorials, and walkthroughs.
 
