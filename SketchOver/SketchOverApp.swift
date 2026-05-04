@@ -19,7 +19,8 @@ import ServiceManagement
 
 let appColor = Color(hex: "#5E5B59")
 
-// MARK: - Color helper
+// MARK: - Color Extension
+
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -68,7 +69,8 @@ struct GlassChipStyle: ButtonStyle {
     }
 }
 
-// MARK: - Gray Menu Button Style (no blue highlight)
+// MARK: - Gray Menu Button Style
+
 struct GrayMenuButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -77,7 +79,7 @@ struct GrayMenuButtonStyle: ButtonStyle {
 }
 
 @main
-struct DrawOverApp: App {
+struct SketchOverApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
@@ -85,7 +87,7 @@ struct DrawOverApp: App {
             Button {
                 appDelegate.showToolbar()
             } label: {
-                Label("Show Draw Over", systemImage: "eye")
+                Label("Show Sketch Over", systemImage: "eye")
             }
 
             Button {
@@ -160,13 +162,14 @@ struct DrawOverApp: App {
         } label: {
             Image(systemName: "pencil.tip")
         }
+        
 
         Settings {
             SettingsView()
         }
         .commands {
             CommandGroup(replacing: .help) {
-                Button("DrawOver Help") {
+                Button("Sketch Over Help") {
                     if let url = URL(string: "https://magicappslab.app/support.html") {
                         NSWorkspace.shared.open(url)
                     }
@@ -375,7 +378,7 @@ struct SettingsView: View {
             window.isOpaque = false
             window.backgroundColor = .clear
         })
-        .frame(width: 650, height: 280)
+        .frame(width: 680, height: 280)
         .background(.ultraThinMaterial)
     }
 
@@ -481,6 +484,7 @@ enum SidebarItem: String, CaseIterable {
 }
 
 // MARK: - General Tab
+
 struct GeneralSettingsTab: View {
     @AppStorage("shortcutKey") private var shortcutKey: String = "s"
     @State private var isRecording = false
@@ -642,11 +646,11 @@ struct AboutTab: View {
                     
 
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Draw Over")
+                    Text("Sketch Over")
                         .font(.system(size: 20, weight: .bold))
                     
 
-                    Text("Version 1.1.0")
+                    Text("Version 1.0")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
 
@@ -667,13 +671,13 @@ struct AboutTab: View {
                         openPanelWindow(view: WhatsNewView(), title: "What's New", width: 460, height: 460)
                     }
                     .buttonStyle(AboutButtonStyle())
-                    .focusable(false)  // ← añade esto
+                    .focusable(false)
 
                     Button("Introduction") {
                         openPanelWindow(view: IntroductionView(), title: "Introduction", width: 460, height: 520)
                     }
                     .buttonStyle(AboutButtonStyle())
-                    .focusable(false)  // ← añade esto
+                    .focusable(false)
 
                     Button("Support") {
                         if let url = URL(string: "https://magicappslab.app/support.html") {
@@ -681,14 +685,14 @@ struct AboutTab: View {
                         }
                     }
                     .buttonStyle(AboutButtonStyle())
-                    .focusable(false)  // ← añade esto
+                    .focusable(false)
                 }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 40)
            
-            .cornerRadius(12)                                  // ← esquinas redondeadas
-
+            .cornerRadius(12)
+            
             Text("© 2026 Magic Apps Lab. All rights reserved.")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
@@ -699,6 +703,7 @@ struct AboutTab: View {
 }
 
 // MARK: - About Button Style
+
 struct AboutButtonStyle: ButtonStyle {
     @State private var isHovered = false
 
@@ -735,7 +740,7 @@ struct WhatsNewView: View {
                     .frame(width: 60, height: 60)
                     .cornerRadius(14)
 
-                Text("What's New in Draw Over")
+                Text("What's New in Sketch Over")
                     .font(.system(size: 24, weight: .bold))
             }
             .padding(.top, 28)
@@ -830,9 +835,9 @@ struct IntroductionView: View {
             .padding(.bottom, 16)
 
             VStack(spacing: 8) {
-                IntroRow(step: "1", title: "Toggle Draw Over", description: "Press ⌘ ⇧ S to show or hide the toolbar from anywhere.")
+                IntroRow(step: "1", title: "Toggle Sketch Over", description: "Press ⌘ ⌥ ⇧ G to show or hide the toolbar from anywhere.")
                 IntroRow(step: "2", title: "Pick a tool", description: "Press 1–6 to switch tools. Hold ⇧ with Line to draw arrows.")
-                IntroRow(step: "3", title: "Draw over anything", description: "Draw Over floats above all your apps. Annotate anything on screen.")
+                IntroRow(step: "3", title: "Draw over anything", description: "Sketch Over floats above all your apps. Annotate anything on screen.")
                 IntroRow(step: "4", title: "Save your work", description: "Hit the share button to save your drawing as a PNG.")
             }
             .padding(.horizontal, 20)

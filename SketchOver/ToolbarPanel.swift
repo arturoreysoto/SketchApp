@@ -107,7 +107,7 @@ func saveScreenshot(appDelegate: AppDelegate) {
 
     let panel = NSSavePanel()
     panel.allowedContentTypes = [.png]
-    panel.nameFieldStringValue = "DrawOver-capture.png"
+    panel.nameFieldStringValue = "SketchOver-capture.png"
     panel.begin { response in
         guard response == .OK, let url = panel.url else { return }
         guard let overlayWindow = appDelegate.overlayWindow,
@@ -197,7 +197,7 @@ struct ColorButton: View {
         }
         .buttonStyle(.plain)
         .focusable(false)
-        .focusEffectDisabled() // 👈 clave para quitar el azul
+        .focusEffectDisabled()
         .onHover { hovering in
             isHovered = hovering
         }
@@ -229,8 +229,8 @@ struct ShareButton: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.5), value: isPressed)
         }
         .buttonStyle(.plain)
-        .focusable(false)          // 👈 añadir
-        .focusEffectDisabled()     // 👈 añadir
+        .focusable(false)
+        .focusEffectDisabled()   
         .onHover { hovering in
             isHovered = hovering
         }

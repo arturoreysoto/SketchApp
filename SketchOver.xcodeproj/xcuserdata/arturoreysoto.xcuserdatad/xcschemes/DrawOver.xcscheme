@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "06B4E0D62F87A21A00F8174C"
-               BuildableName = "DrawOver.app"
-               BlueprintName = "DrawOver"
-               ReferencedContainer = "container:DrawOver.xcodeproj">
+               BuildableName = "SketchOver.app"
+               BlueprintName = "SketchOver"
+               ReferencedContainer = "container:SketchOver.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "06B4E0D62F87A21A00F8174C"
-            BuildableName = "DrawOver.app"
-            BlueprintName = "DrawOver"
-            ReferencedContainer = "container:DrawOver.xcodeproj">
+            BuildableName = "SketchOver.app"
+            BlueprintName = "SketchOver"
+            ReferencedContainer = "container:SketchOver.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -63,9 +63,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "06B4E0D62F87A21A00F8174C"
-            BuildableName = "DrawOver.app"
-            BlueprintName = "DrawOver"
-            ReferencedContainer = "container:DrawOver.xcodeproj">
+            BuildableName = "SketchOver.app"
+            BlueprintName = "SketchOver"
+            ReferencedContainer = "container:SketchOver.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
